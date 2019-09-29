@@ -41,7 +41,7 @@ class TableHeaderBar extends StatelessWidget {
                     ),
                   ],
                 ),
-                button
+                button != null ? button : SizedBox()
               ],
             ),
             Row(

@@ -9,10 +9,11 @@ import 'package:jep_restaurant_waiter_app/widgets/container_bar.dart';
 import 'package:jep_restaurant_waiter_app/widgets/round_button_icon.dart';
 import 'package:jep_restaurant_waiter_app/widgets/table_header_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 import '../constants.dart';
 
-final _scaffoldKey = GlobalKey<ScaffoldState>();
+//final _scaffoldKey = GlobalKey<ScaffoldState>();
 
 final formatCurrency = new NumberFormat("#,##0", "en_US");
 
@@ -32,25 +33,34 @@ class _OrderFoodPageState extends State<OrderFoodPage> {
   }
 
   Container setCurrentItems(items) {
-    totalPrice = 0;
-    List<Widget> list = List();
-    for (var item in items) {
-      list.add(FoodItemLine(
-        name: item['name'],
-        quantity: item['quantity'],
-        price: item['price'],
-        status: item['status'],
-      ));
-      setState(() {
-        totalPrice += item['price'] * item['quantity'];
-      });
+    if (items != null) {
+      totalPrice = 0;
+      List<Widget> list = List();
+      for (var item in items) {
+        list.add(FoodItemLine(
+          name: item['name'],
+          quantity: item['quantity'],
+          price: item['price'],
+          status: item['status'],
+        ));
+        setState(() {
+          totalPrice += item['price'] * item['quantity'];
+        });
+      }
+      return Container(
+        margin: EdgeInsets.all(10.0),
+        child: ListView(
+          children: list,
+        ),
+      );
+    } else {
+      return Container(
+        margin: EdgeInsets.all(10.0),
+        child: ListView(
+          children: <Widget>[],
+        ),
+      );
     }
-    return Container(
-      margin: EdgeInsets.all(10.0),
-      child: ListView(
-        children: list,
-      ),
-    );
   }
 
   Container setTableLogs(logs) {
@@ -93,7 +103,7 @@ class _OrderFoodPageState extends State<OrderFoodPage> {
       return WillPopScope(
         onWillPop: () async => false,
         child: Scaffold(
-          key: _scaffoldKey,
+//          key: _scaffoldKey,
           body: SafeArea(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -106,7 +116,8 @@ class _OrderFoodPageState extends State<OrderFoodPage> {
                             ? FlatButton(
                                 color: primaryTextColor,
                                 onPressed: () {
-                                  Navigator.pop(context);
+                                  Navigator.pushReplacementNamed(
+                                      context, '/tables');
                                   tableInfo.updateTableStatus(
                                       tableInfo.tableNo, 'available', "");
                                   tableInfo.reset();
@@ -116,7 +127,8 @@ class _OrderFoodPageState extends State<OrderFoodPage> {
                             : FlatButton(
                                 color: primaryTextColor,
                                 onPressed: () {
-                                  Navigator.pop(context);
+                                  Navigator.pushReplacementNamed(
+                                      context, '/tables');
                                   tableInfo.updateTableStatus(
                                       tableInfo.tableNo, 'available', "");
                                   tableInfo.closeTable(tableInfo.id);
@@ -217,10 +229,10 @@ class _OrderFoodPageState extends State<OrderFoodPage> {
                               },
                             );
                           } else {
-                            final snackBar = SnackBar(
-                                content: Text(
-                                    'ไม่สามารถเช็คบิลได้ เนื่องจากไม่มีรายการอาหาร ณ ปัจุบัน'));
-                            _scaffoldKey.currentState.showSnackBar(snackBar);
+//                            final snackBar = SnackBar(
+//                                content: Text(
+//                                    'ไม่สามารถเช็คบิลได้ เนื่องจากไม่มีรายการอาหาร ณ ปัจุบัน'));
+//                            _scaffoldKey.currentState.showSnackBar(snackBar);
                           }
                         },
                       ),
@@ -333,6 +345,26 @@ class LogLine extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               Expanded(flex: 1, child: Text('สั่ง')),
+              Expanded(
+                  flex: 6,
+                  child: Text(
+                      '$name x ${quantity.toString()} ${from_table != null ? '(#โต๊ะ: $from_table)' : ''}')),
+              Expanded(flex: 2, child: Text(short_name)),
+              Expanded(flex: 2, child: Text(formatTime)),
+            ],
+          ),
+          SizedBox(
+            height: 10.0,
+          ),
+        ],
+      );
+    } else if (status == "complete") {
+      return Column(
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Expanded(flex: 1, child: Text('ปรุงเสร็จ')),
               Expanded(
                   flex: 6,
                   child: Text(
@@ -498,11 +530,14 @@ class TransferOrderSection extends StatefulWidget {
 
 class _TransferOrderSectionState extends State<TransferOrderSection> {
   var selectTable = '-';
+  var selectTableId = '-';
   var listItem = [];
   var items = [];
+  var isChecked = false;
   @override
   Widget build(BuildContext context) {
     var tableInfo = Provider.of<TableInfo>(context);
+    var userInfo = Provider.of<Login>(context);
 
     void addItem(id, quantity) {
       listItem.add({"id": id, "quantity": quantity});
@@ -523,6 +558,66 @@ class _TransferOrderSectionState extends State<TransferOrderSection> {
       print(listItem.length);
     }
 
+    void submitTransferOrder(newTableNumber, orders, oldTableId) {
+      print('submitTransferOrder: $orders');
+      var totalQuantity =
+          items.fold(0, (value, item) => value + item['quantity']);
+      var selectQuantity =
+          orders.fold(0, (value, item) => value + item['quantity']);
+
+      var transferType = totalQuantity == selectQuantity ? 'full' : 'partial';
+      tableInfo.transferOrder(
+          newTableNumber, orders, userInfo.id, transferType, oldTableId,
+          (response) {
+        tableInfo.updateTableStatus(tableInfo.tableNo, 'available', "");
+        tableInfo.reset();
+        var alertStyle = AlertStyle(
+          isCloseButton: false,
+          isOverlayTapDismiss: false,
+        );
+        if (response['status']) {
+          Alert(
+            context: context,
+            style: alertStyle,
+            type: AlertType.success,
+            title: "RFLUTTER ALERT",
+            desc: "ย้ายโต๊ะสำเร็จ.",
+            buttons: [
+              DialogButton(
+                child: Text(
+                  "ปิด",
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/tables');
+                },
+                width: 120,
+              )
+            ],
+          ).show();
+        } else {
+          Alert(
+              context: context,
+              style: alertStyle,
+              type: AlertType.error,
+              title: "RFLUTTER ALERT",
+              desc: "ย้ายโต๊ะล้มเหลว.",
+              buttons: [
+                DialogButton(
+                  child: Text(
+                    "ปิด",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/tables');
+                  },
+                  width: 120,
+                )
+              ]).show();
+        }
+      });
+    }
+
     ListView setTransferTable(data) {
       List<Widget> list = List();
       for (var tableSection in data) {
@@ -537,7 +632,32 @@ class _TransferOrderSectionState extends State<TransferOrderSection> {
                       items = response;
                       selectTable = table['number'];
                       listItem = [];
+                      selectTableId = table['id'];
                     });
+                  } else if (selectTable == table['number']) {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text(
+                                'คุณต้องการย้ายทุกรายการจากโต๊ะ ${table['number']} ไปยังโต๊ะ ${tableInfo.tableNo}'),
+                            actions: <Widget>[
+                              new FlatButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('ปิด'),
+                              ),
+                              new FlatButton(
+                                onPressed: () {
+                                  submitTransferOrder(tableInfo.tableNo,
+                                      response, selectTableId);
+                                },
+                                child: Text('ยืนยัน'),
+                              ),
+                            ],
+                          );
+                        });
                   } else {
                     setState(() {
                       items = [];
@@ -579,7 +699,7 @@ class _TransferOrderSectionState extends State<TransferOrderSection> {
             id: item['id'],
             addItem: addItem,
             removeItem: removeItem,
-            isChecked: false,
+            isChecked: isChecked,
           ),
         );
       }
@@ -605,8 +725,18 @@ class _TransferOrderSectionState extends State<TransferOrderSection> {
           color: Colors.white,
           height: 250,
           child: Container(
-            child: ListView(children: loadItemList(items)),
-          ),
+              child: ListView.builder(
+                  itemCount: items.length,
+                  itemBuilder: (BuildContext ctxt, int index) {
+                    return new TransferItemLine(
+                      name: items[index]['name'],
+                      quantity: items[index]['quantity'],
+                      id: items[index]['id'],
+                      addItem: addItem,
+                      removeItem: removeItem,
+                      isChecked: isChecked,
+                    );
+                  })),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -621,7 +751,9 @@ class _TransferOrderSectionState extends State<TransferOrderSection> {
               child: Text(
                 'ปืด',
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
             ),
             FlatButton(
               color: Colors.green,
@@ -633,8 +765,12 @@ class _TransferOrderSectionState extends State<TransferOrderSection> {
               child: Text(
                 'ยืนยัน',
               ),
-              onPressed:
-                  listItem.length != 0 && selectTable != '-' ? () {} : null,
+              onPressed: listItem.length != 0 && selectTable != '-'
+                  ? () {
+                      submitTransferOrder(
+                          tableInfo.tableNo, listItem, selectTableId);
+                    }
+                  : null,
             )
           ],
         )

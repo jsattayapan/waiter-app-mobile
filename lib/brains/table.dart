@@ -35,6 +35,9 @@ class TableInfo with ChangeNotifier {
     this.id = null;
     this.timestamp = null;
     this.currentOrders = [];
+    this.tableLogs = [];
+    this.tablesData = null;
+    this.createBy = null;
     notifyListeners();
   }
 
@@ -97,9 +100,12 @@ class TableInfo with ChangeNotifier {
         await http.get(url, headers: {'AUTHENTICATION': constants.token});
     var body2 = json.decode(response.body);
     var logs = new List.from(body1)..addAll(body2);
-    logs.sort((a, b) => b['timestamp'].compareTo(a['timestamp']));
+    logs.sort((a, b) {
+      var aTime = DateTime.parse(a['timestamp']);
+      var bTime = DateTime.parse(b['timestamp']);
+      return aTime.compareTo(bTime);
+    });
     tableLogs = logs;
-    print(logs);
     notifyListeners();
   }
 
@@ -184,5 +190,29 @@ class TableInfo with ChangeNotifier {
     this.language = jsonData['language'];
     this.id = jsonData['id'];
     notifyListeners();
+  }
+
+  Future transferOrder(newTableNumber, orders, createBy, transferType,
+      oldTableId, callback) async {
+    var url =
+        '${constants.serverIpAddress}api/restaurant/tables/customer-tables/transfer-orders';
+
+    try {
+      var response = await http.post(url, headers: {
+        'AUTHENTICATION': constants.token
+      }, body: {
+        'tableNumber': newTableNumber,
+        'orders': json.encode(orders),
+        'create_by': createBy,
+        'oldTableId': oldTableId,
+        'transferType': transferType
+      });
+      print('Transfer True');
+      callback({'status': true});
+    } catch (err) {
+      print('Transfer false');
+      print('Err: $err');
+      callback({'status': false});
+    }
   }
 }

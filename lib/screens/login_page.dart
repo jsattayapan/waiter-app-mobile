@@ -129,8 +129,7 @@ class _LoginButtonState extends State<LoginButton> {
               } else if (result == 'pass') {
                 var tableInfo = Provider.of<TableInfo>(context);
                 tableInfo.getAllTable();
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => Socket()));
+                Navigator.pushReplacementNamed(context, '/socket');
                 setState(() {
                   isTapable = true;
                 });
@@ -145,12 +144,23 @@ class _LoginButtonState extends State<LoginButton> {
                 setState(() {
                   isTapable = true;
                 });
-              } else {
+              } else if (result == 'signedIn') {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
                     return CustomAlertDialog(
                         label: 'บัญญชีนี้กำลังถูกใช้งานอยู่');
+                  },
+                );
+                setState(() {
+                  isTapable = true;
+                });
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return CustomAlertDialog(
+                        label: 'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้');
                   },
                 );
                 setState(() {

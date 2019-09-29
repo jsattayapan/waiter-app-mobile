@@ -16,24 +16,32 @@ class Login with ChangeNotifier {
 
   Future<String> logInfo(String number, String passcode) async {
     var url = '${constants.serverIpAddress}api/users/staffs/login';
-    var response =
-        await http.post(url, body: {'number': number, 'passcode': passcode});
+    try {
+      var response = await http.post(url, body: {
+        'number': number,
+        'passcode': passcode,
+        'platform': 'mobile-app-waiter'
+      });
 
-    var jsonData = json.decode(response.body);
-    print('Token:');
-    constants.token = jsonData['token'];
+      var jsonData = json.decode(response.body);
+      print('Token:');
+      constants.token = jsonData['token'];
 
-    if (response.statusCode == 200) {
-      this.number = jsonData['number'];
-      this.shortName = jsonData['short_name'];
-      this.position = jsonData['position'];
-      this.id = jsonData['id'];
-      notifyListeners();
-      return Future.value('pass');
-    } else if (response.statusCode == 404) {
-      return Future.value('incorrect');
-    } else {
-      return Future.value('signedIn');
+      if (response.statusCode == 200) {
+        this.number = jsonData['number'];
+        this.shortName = jsonData['short_name'];
+        this.position = jsonData['position'];
+        this.id = jsonData['id'];
+        notifyListeners();
+        return Future.value('pass');
+      } else if (response.statusCode == 404) {
+        print('Rsp Msg: ${jsonData['msg']}');
+        return Future.value('incorrect');
+      } else {
+        return Future.value('signedIn');
+      }
+    } catch (er) {
+      return Future.value('error');
     }
   }
 

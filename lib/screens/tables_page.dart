@@ -132,7 +132,7 @@ class TablesPageState extends State<TablesPage> {
                         FlatButton(
                             onPressed: () {
                               userInfo.logout();
-                              Navigator.pop(context);
+                              Navigator.pushReplacementNamed(context, '/login');
                             },
                             child: Text(
                               'ออกจากระบบ',

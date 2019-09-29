@@ -14,7 +14,7 @@ description: An application for waiter to use in jep&#x27;s restaurant
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.2.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:
@@ -31,6 +31,7 @@ dependencies:
   sliding_up_panel: ^0.3.4
   flutter_slidable: ^0.5.3
   intl: ^0.16.0
+  rflutter_alert: ^1.0.3
 
 
 dev_dependencies:

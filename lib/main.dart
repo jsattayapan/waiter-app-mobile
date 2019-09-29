@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jep_restaurant_waiter_app/screens/login_page.dart';
+import 'package:jep_restaurant_waiter_app/screens/tables_page.dart';
 import 'package:jep_restaurant_waiter_app/utilities/socket.dart';
 import 'package:provider/provider.dart';
 import 'package:jep_restaurant_waiter_app/brains/login.dart';
@@ -35,6 +36,13 @@ class MyApp extends StatelessWidget {
             splashColor: Colors.white,
           ),
           home: MyHomePage(title: 'Flutter Demo Home Page'),
+          routes: {
+            // When navigating to the "/" route, build the FirstScreen widget.
+            '/login': (context) => LoginPage(),
+            // When navigating to the "/second" route, build the SecondScreen widget.
+            '/tables': (context) => TablesPage(),
+            '/socket': (context) => Socket()
+          },
         ),
       ),
     );
@@ -78,6 +86,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     print('state = $state');
+//    if (state == AppLifecycleState.paused) {
+//      var tableInfo = Provider.of<TableInfo>(context);
+//      var userInfo = Provider.of<Login>(context);
+//      tableInfo.reset();
+//      userInfo.logout();
+//      Navigator.pushReplacementNamed(context, '/login');
+//    }
   }
 }
 
