@@ -126,32 +126,10 @@ class _LoginButtonState extends State<LoginButton> {
                 setState(() {
                   isTapable = true;
                 });
-              } else if (result == 'pass') {
+              } else if (result['status']) {
                 var tableInfo = Provider.of<TableInfo>(context);
                 tableInfo.getAllTable();
                 Navigator.pushReplacementNamed(context, '/socket');
-                setState(() {
-                  isTapable = true;
-                });
-              } else if (result == 'incorrect') {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return CustomAlertDialog(
-                        label: 'บัญชี หรือ รหัสผ่านไม่ถูกต้อง');
-                  },
-                );
-                setState(() {
-                  isTapable = true;
-                });
-              } else if (result == 'signedIn') {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return CustomAlertDialog(
-                        label: 'บัญญชีนี้กำลังถูกใช้งานอยู่');
-                  },
-                );
                 setState(() {
                   isTapable = true;
                 });
@@ -159,8 +137,7 @@ class _LoginButtonState extends State<LoginButton> {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    return CustomAlertDialog(
-                        label: 'ไม่สามารถเชื่อมต่อกับเซิฟเวอร์ได้');
+                    return CustomAlertDialog(label: result['msg']);
                   },
                 );
                 setState(() {
@@ -168,8 +145,6 @@ class _LoginButtonState extends State<LoginButton> {
                 });
               }
             }
-          } else {
-            //TODO: Tabale is False
           }
         },
         child: Center(

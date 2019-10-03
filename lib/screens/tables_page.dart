@@ -39,12 +39,14 @@ class TablesPageState extends State<TablesPage> {
       List<Widget> list = new List();
       int count = 0;
       for (var table in data) {
-        list.add(TableSection(
-          label: table['section'],
-          page: count,
-          pageController: pageController,
-        ));
-        count++;
+        if (table['section'] != 'ETC') {
+          list.add(TableSection(
+            label: table['section'],
+            page: count,
+            pageController: pageController,
+          ));
+          count++;
+        }
       }
       setState(() {
         tableSections = list;
@@ -57,28 +59,31 @@ class TablesPageState extends State<TablesPage> {
       List<Widget> list = new List();
       for (var tableSection in data) {
         List<Widget> gridList = new List();
-        for (var table in tableSection['tables']) {
-          gridList.add(
-            TableBox(
-              tableNo: table['number'],
-              status: table['status'],
-              numberOfGuest: table['number_of_guest'],
-              zone: table['zone'],
-              id: table['id'],
-              createBy: table['create_by'],
-              timestamp: table['timestamp'],
-            ),
+        if (tableSection['section'] != 'ETC') {
+          for (var table in tableSection['tables']) {
+            gridList.add(
+              TableBox(
+                tableNo: table['number'],
+                status: table['status'],
+                numberOfGuest: table['number_of_guest'],
+                zone: table['zone'],
+                id: table['id'],
+                createBy: table['create_by'],
+                timestamp: table['timestamp'],
+                section: table['section'],
+              ),
+            );
+          }
+          list.add(
+            GridView.count(
+                childAspectRatio: (1 / 1.3),
+                primary: false,
+                padding: const EdgeInsets.all(10.0),
+                crossAxisSpacing: 10.0,
+                crossAxisCount: 4,
+                children: gridList),
           );
         }
-        list.add(
-          GridView.count(
-              childAspectRatio: (1 / 1.3),
-              primary: false,
-              padding: const EdgeInsets.all(10.0),
-              crossAxisSpacing: 10.0,
-              crossAxisCount: 4,
-              children: gridList),
-        );
       }
       return Expanded(
         child: Center(

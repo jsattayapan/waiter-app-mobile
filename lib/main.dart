@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Flutter Demo',
+          title: 'Jep\'s Restaurant ',
           theme: ThemeData.light().copyWith(
             primaryColor: primaryColor,
             scaffoldBackgroundColor: Color(0xFFf9fbe7),

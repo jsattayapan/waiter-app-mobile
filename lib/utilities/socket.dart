@@ -39,6 +39,11 @@ class SocketState extends State<Socket> {
       tableInfo.getAllTable();
     });
 
+    socket.on('forceWaiterMobileLogout', (data) {
+      userInfo.logout();
+      Navigator.pushReplacementNamed(context, '/login');
+    });
+
     print(socket);
   }
 

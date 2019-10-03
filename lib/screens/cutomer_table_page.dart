@@ -90,8 +90,6 @@ class _OrderFoodPageState extends State<OrderFoodPage> {
     var tableInfo = Provider.of<TableInfo>(context);
     var userInfo = Provider.of<Login>(context);
 
-    print('Current Order: ${tableInfo.currentOrders}');
-
     if (tableInfo.timestamp == null) {
       return WillPopScope(
         onWillPop: () async => false,
@@ -161,81 +159,97 @@ class _OrderFoodPageState extends State<OrderFoodPage> {
                                 });
                               },
                             ),
-                      RoundIconButton(
-                        icon: FontAwesomeIcons.exchangeAlt,
-                        color: Colors.yellow,
-                        onPressed: () {
-                          showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return Dialog(
-                                  child: Container(
-                                      width: 200.0,
-                                      height: 450.0,
-                                      color: Colors.grey.shade900,
-                                      child: TransferOrderSection()),
-                                );
-                              });
-                        },
-                      ),
-                      RoundIconButton(
-                        icon: FontAwesomeIcons.creditCard,
-                        color: Colors.purpleAccent,
-                        onPressed: () {
-                          if (tableInfo.currentOrders.length != 0) {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text(
-                                      'ต้องการเก็บเงินโต๊ะ: ${tableInfo.tableNo} ?'),
-                                  actions: <Widget>[
-                                    FlatButton(
-                                      child: Text("ไม่ใช่"),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                    FlatButton(
-                                      child: Text('ใช่'),
-                                      onPressed: () {
-                                        //TODO: Check bill
-
-                                        Navigator.of(context).pop();
-                                        tableInfo.checkBill(
-                                            tableInfo.id, userInfo.id);
-                                        showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              Future.delayed(
-                                                  Duration(seconds: 1), () {
-                                                Navigator.of(context).pop(true);
-                                                Navigator.of(context).pop(true);
-                                                tableInfo.updateTableStatus(
-                                                    tableInfo.tableNo,
-                                                    'available',
-                                                    "");
-                                                tableInfo.reset();
-                                              });
-                                              return AlertDialog(
-                                                title:
-                                                    Text('กำลังพิมพ์ใบเสร็จ'),
-                                              );
-                                            });
-                                      },
-                                    )
-                                  ],
-                                );
+                      tableInfo.section != 'VIP' && tableInfo.section != 'ETC'
+                          ? RoundIconButton(
+                              icon: FontAwesomeIcons.exchangeAlt,
+                              color: Colors.yellow,
+                              onPressed: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return Dialog(
+                                        child: Container(
+                                            width: 200.0,
+                                            height: 450.0,
+                                            color: Colors.grey.shade900,
+                                            child: TransferOrderSection()),
+                                      );
+                                    });
                               },
-                            );
-                          } else {
-//                            final snackBar = SnackBar(
-//                                content: Text(
-//                                    'ไม่สามารถเช็คบิลได้ เนื่องจากไม่มีรายการอาหาร ณ ปัจุบัน'));
-//                            _scaffoldKey.currentState.showSnackBar(snackBar);
-                          }
-                        },
-                      ),
+                            )
+                          : SizedBox(),
+                      tableInfo.section != 'VIP' && tableInfo.section != 'ETC'
+                          ? RoundIconButton(
+                              icon: FontAwesomeIcons.creditCard,
+                              color: Colors.purpleAccent,
+                              onPressed: () {
+                                if (tableInfo.currentOrders.length != 0) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text(
+                                            'ต้องการเก็บเงินโต๊ะ: ${tableInfo.tableNo} ?'),
+                                        actions: <Widget>[
+                                          FlatButton(
+                                            child: Text("ไม่ใช่"),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                          FlatButton(
+                                            child: Text('ใช่'),
+                                            onPressed: () {
+                                              //TODO: Check bill
+
+                                              Navigator.of(context).pop();
+                                              tableInfo.checkBill(
+                                                  tableInfo.id, userInfo.id);
+                                              showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    Future.delayed(
+                                                        Duration(seconds: 1),
+                                                        () {
+                                                      Navigator.of(context)
+                                                          .pop(true);
+                                                      Navigator.of(context)
+                                                          .pop(true);
+                                                      tableInfo
+                                                          .updateTableStatus(
+                                                              tableInfo.tableNo,
+                                                              'available',
+                                                              "");
+                                                      tableInfo.reset();
+                                                    });
+                                                    return AlertDialog(
+                                                      title: Text(
+                                                          'กำลังพิมพ์ใบเสร็จ'),
+                                                    );
+                                                  });
+                                            },
+                                          )
+                                        ],
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        Future.delayed(Duration(seconds: 1),
+                                            () {
+                                          Navigator.of(context).pop(true);
+                                        });
+                                        return AlertDialog(
+                                          title: Text(
+                                              'ไม่สามารถเช็คบิลได้ เนื่องจากไม่มีรายการอาหาร ณ ปัจุบัน'),
+                                        );
+                                      });
+                                }
+                              },
+                            )
+                          : SizedBox(),
                       RoundIconButton(
                         icon: Icons.note_add,
                         color: Colors.greenAccent,

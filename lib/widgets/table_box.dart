@@ -14,6 +14,7 @@ class TableBox extends StatefulWidget {
   final String id;
   final String language;
   final String createBy;
+  final String section;
   var timestamp;
   TableBox(
       {this.tableNo,
@@ -23,7 +24,8 @@ class TableBox extends StatefulWidget {
       this.id,
       this.language,
       this.createBy,
-      this.timestamp});
+      this.timestamp,
+      this.section});
 
   @override
   _TableBoxState createState() => _TableBoxState();
@@ -53,7 +55,8 @@ class _TableBoxState extends State<TableBox> {
                 widget.zone,
                 widget.language,
                 widget.createBy,
-                widget.timestamp);
+                widget.timestamp,
+                widget.section);
             tableInfo.setCurrentOrder(widget.id);
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => OrderFoodPage()));

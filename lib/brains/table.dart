@@ -17,7 +17,7 @@ class TableInfo with ChangeNotifier {
   var timestamp;
   var tableLogs;
   var tablesData;
-
+  String section;
   var currentOrders;
 
   void minusGuest() {
@@ -38,6 +38,7 @@ class TableInfo with ChangeNotifier {
     this.tableLogs = [];
     this.tablesData = null;
     this.createBy = null;
+    this.section = null;
     notifyListeners();
   }
 
@@ -136,8 +137,8 @@ class TableInfo with ChangeNotifier {
         body: {'number': number, 'status': status, 'hold_by': userId});
   }
 
-  void setTableInfo(
-      id, tableNo, numberOfGuest, zone, language, createBy, timestamp) async {
+  void setTableInfo(id, tableNo, numberOfGuest, zone, language, createBy,
+      timestamp, section) async {
     var url = '${constants.serverIpAddress}api/users/staffs/$createBy';
     var response =
         await http.get(url, headers: {'AUTHENTICATION': constants.token});
@@ -150,6 +151,7 @@ class TableInfo with ChangeNotifier {
     this.numberOfGuest = numberOfGuest;
     this.language = language;
     this.zone = zone;
+    this.section = section;
     notifyListeners();
   }
 
@@ -163,6 +165,7 @@ class TableInfo with ChangeNotifier {
     if (response.statusCode == 200) {
       if (json.decode(response.body) != this.tablesData) {
         this.tablesData = json.decode(response.body);
+        print(response.body);
         notifyListeners();
       }
     }
@@ -189,6 +192,7 @@ class TableInfo with ChangeNotifier {
     this.numberOfGuest = jsonData['number_of_guest'];
     this.language = jsonData['language'];
     this.id = jsonData['id'];
+    this.section = jsonData['section'];
     notifyListeners();
   }
 
