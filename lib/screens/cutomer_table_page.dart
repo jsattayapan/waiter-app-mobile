@@ -107,34 +107,45 @@ class _OrderFoodPageState extends State<OrderFoodPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 TableHeaderBar(
-                    tableInfo: tableInfo,
-                    userInfo: userInfo,
-                    button: tableInfo.currentOrders != null
-                        ? tableInfo.currentOrders.length != 0
-                            ? FlatButton(
-                                color: primaryTextColor,
-                                onPressed: () {
-                                  Navigator.pushReplacementNamed(
-                                      context, '/tables');
-                                  tableInfo.updateTableStatus(
-                                      tableInfo.tableNo, 'available', "");
-                                  tableInfo.reset();
-                                },
-                                child: Text('ออก'),
-                              )
-                            : FlatButton(
-                                color: primaryTextColor,
-                                onPressed: () {
-                                  Navigator.pushReplacementNamed(
-                                      context, '/tables');
-                                  tableInfo.updateTableStatus(
-                                      tableInfo.tableNo, 'available', "");
-                                  tableInfo.closeTable(tableInfo.id);
-                                  tableInfo.reset();
-                                },
-                                child: Text('ปิดโต๊ะ'),
-                              )
-                        : null),
+                  tableInfo: tableInfo,
+                  userInfo: userInfo,
+                  button: tableInfo.currentOrders != null
+                      ? tableInfo.currentOrders.length != 0
+                          ? FlatButton(
+                              color: primaryTextColor,
+                              onPressed: () {
+                                Navigator.pushReplacementNamed(
+                                    context, '/tables');
+                                tableInfo.updateTableStatus(
+                                    tableInfo.tableNo, 'available', "");
+                                tableInfo.reset();
+                              },
+                              child: Text('ออก'),
+                            )
+                          : FlatButton(
+                              color: primaryTextColor,
+                              onPressed: () {
+                                Navigator.pushReplacementNamed(
+                                    context, '/tables');
+                                tableInfo.updateTableStatus(
+                                    tableInfo.tableNo, 'available', "");
+                                tableInfo.closeTable(tableInfo.id);
+                                tableInfo.reset();
+                              },
+                              child: Text('ปิดโต๊ะ'),
+                            )
+                      : FlatButton(
+                          color: primaryTextColor,
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(context, '/tables');
+                            tableInfo.updateTableStatus(
+                                tableInfo.tableNo, 'available', "");
+                            tableInfo.closeTable(tableInfo.id);
+                            tableInfo.reset();
+                          },
+                          child: Text('ปิดโต๊ะ'),
+                        ),
+                ),
                 ContainerBar(
                   color: Colors.blue,
                   child: Row(
