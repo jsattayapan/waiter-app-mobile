@@ -110,13 +110,14 @@ class TableInfo with ChangeNotifier {
     notifyListeners();
   }
 
-  setCurrentOrder(id) async {
+  setCurrentOrder(id, callback) async {
     var url =
         '${constants.serverIpAddress}api/restaurant/tables/item-orders/$id';
     var response =
         await http.get(url, headers: {'AUTHENTICATION': constants.token});
     var body = json.decode(response.body);
     currentOrders = body;
+    callback();
     notifyListeners();
   }
 

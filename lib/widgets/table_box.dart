@@ -57,9 +57,20 @@ class _TableBoxState extends State<TableBox> {
                 widget.createBy,
                 widget.timestamp,
                 widget.section);
-            tableInfo.setCurrentOrder(widget.id);
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => OrderFoodPage()));
+            tableInfo.setCurrentOrder(widget.id, () {
+              Navigator.pop(context);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => OrderFoodPage()));
+            });
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => WillPopScope(
+                          onWillPop: () async => false,
+                          child: Scaffold(
+                            body: Center(child: Text('Loading...')),
+                          ),
+                        )));
           } else {
             //TODO: Update table status to on_create
             tableInfo.updateTableStatus(

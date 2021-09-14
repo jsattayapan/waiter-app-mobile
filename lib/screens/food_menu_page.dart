@@ -27,16 +27,19 @@ class FoodMenuPage extends StatefulWidget {
 class _FoodMenuPageState extends State<FoodMenuPage> {
   var newOrderItems = [];
   var allItems = [];
+  var filterItem = [];
 
   addNewOrderItem(item) {
     setState(() {
       newOrderItems.add({
         'name': item['name'],
+        'english_name': item['english_name'],
         'code': item['code'],
         'quantity': item['quantity'],
         'remark': item['remark'],
         'price': item['price']
       });
+      filterItem = [];
     });
   }
 
@@ -110,11 +113,13 @@ class _FoodMenuPageState extends State<FoodMenuPage> {
             allItems.add({
               'code': item['code'].toString(),
               'name': item['name'],
+              'english_name': item['english_name'],
               'price': item['price']
             });
             listItem.add(ItemContainer(
               label: item['name'],
               code: item['code'].toString(),
+              english_name: item['english_name'],
               price: item['price'],
               addNewOrderItem: addNewOrderItem,
             ));
@@ -149,7 +154,6 @@ class _FoodMenuPageState extends State<FoodMenuPage> {
             column.add(Flexible(
               child: GridView.count(
                   shrinkWrap: true,
-                  // todo comment this out and check the result
                   physics: ClampingScrollPhysics(),
                   childAspectRatio: (1 / 1.3),
                   primary: false,
@@ -226,6 +230,7 @@ class _FoodMenuPageState extends State<FoodMenuPage> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -242,6 +247,12 @@ class _FoodMenuPageState extends State<FoodMenuPage> {
                           height: 30,
                         )
                       ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: Text(
+                        '${order['english_name']}',
+                      ),
                     ),
                     SizedBox(
                       height: 10.0,
@@ -300,6 +311,12 @@ class _FoodMenuPageState extends State<FoodMenuPage> {
                       ],
                     ),
                     Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: Text(
+                        '${order['english_name']}',
+                      ),
+                    ),
+                    Padding(
                       padding: const EdgeInsets.only(left: 10),
                       child: Text(
                         '** ${order['remark']}',
@@ -321,37 +338,74 @@ class _FoodMenuPageState extends State<FoodMenuPage> {
       return list;
     }
 
-    codeSubmited() {
+    codeSubmited() async {
       var code = codeController.text;
-      print(code);
-      var item = allItems.where((i) => i['code'] == code).toList();
-      print(item.length);
-      codeController.text = '';
-      if (item.length != 0) {
-        showDialog(
+      var firstChar = code[0];
+      if (firstChar == '#') {
+        print(code.substring(1));
+        var items = await foodItems.getOnlineItemsByNumber(code.substring(1));
+        print('ok');
+        print(items);
+        if (items['items'].length != 0) {
+          for (var x in items['items']) {
+            var item = allItems.where((i) => i['code'] == x['code']).toList();
+            addNewOrderItem({
+              'name': item[0]['name'],
+              'english_name': item[0]['english_name'],
+              'code': item[0]['code'],
+              'quantity': x['quantity'],
+              'remark': '',
+              'price': item[0]['price']
+            });
+          }
+          showDialog(
             context: context,
             builder: (BuildContext context) {
-              return Dialog(
-                child: Container(
-                  width: 200.0,
-                  height: 450.0,
-                  color: Colors.grey.shade900,
-                  child: CreateFoodItemContent(
-                    label: item[0]['name'],
-                    price: item[0]['price'],
-                    code: code,
-                    addNewOrderItem: addNewOrderItem,
-                  ),
-                ),
-              );
-            });
+              return CustomAlertDialog(
+                  label: 'เพิ่ม ' +
+                      items['items'].length.toString() +
+                      'รายการใหม่');
+            },
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return CustomAlertDialog(label: 'รหัสรายการไม่ถูกต้อง');
+            },
+          );
+        }
       } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return CustomAlertDialog(label: 'รหัสรายการไม่ถูกต้อง');
-          },
-        );
+        var item = allItems.where((i) => i['code'] == code).toList();
+        print(item.length);
+        codeController.text = '';
+        if (item.length != 0) {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return Dialog(
+                  child: Container(
+                    width: 200.0,
+                    height: 450.0,
+                    color: Colors.grey.shade900,
+                    child: CreateFoodItemContent(
+                      label: item[0]['name'],
+                      english_name: item[0]['english_name'],
+                      price: item[0]['price'],
+                      code: code,
+                      addNewOrderItem: addNewOrderItem,
+                    ),
+                  ),
+                );
+              });
+        } else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return CustomAlertDialog(label: 'รหัสรายการไม่ถูกต้อง');
+            },
+          );
+        }
       }
     }
 
@@ -419,7 +473,7 @@ class _FoodMenuPageState extends State<FoodMenuPage> {
                     Flexible(
                       child: TextField(
                         controller: codeController,
-                        keyboardType: TextInputType.phone,
+                        keyboardType: TextInputType.text,
                         decoration: InputDecoration(
                           labelStyle: TextStyle(color: primaryColor),
                           border: OutlineInputBorder(
@@ -441,10 +495,53 @@ class _FoodMenuPageState extends State<FoodMenuPage> {
                     ),
                     //TODO: Add item to prepare order list
                     CustomButton(
-                      label: 'เพิ่ม',
+                      label: 'ค้นหา',
                       color: primaryColor,
                       onTap: () {
-                        codeSubmited();
+                        var code = codeController.text;
+                        if (code == '') {
+                          setState(() {
+                            filterItem = [];
+                          });
+                        } else {
+                          var itemByCode = allItems
+                              .where((i) => i['code'].contains(code))
+                              .toList();
+                          var itemByName = allItems
+                              .where((i) => i['name'].contains(code))
+                              .toList();
+                          List<Widget> listItem = new List();
+                          for (var item in itemByCode) {
+                            listItem.add(ItemContainer(
+                              label: item['name'],
+                              code: item['code'].toString(),
+                              english_name: item['english_name'],
+                              price: item['price'],
+                              addNewOrderItem: addNewOrderItem,
+                            ));
+                          }
+                          for (var item in itemByName) {
+                            listItem.add(ItemContainer(
+                              label: item['name'],
+                              code: item['code'].toString(),
+                              english_name: item['english_name'],
+                              price: item['price'],
+                              addNewOrderItem: addNewOrderItem,
+                            ));
+                          }
+                          setState(() {
+                            filterItem = listItem;
+                          });
+                          if (listItem.length == 0) {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return CustomAlertDialog(
+                                    label: 'ไม่พบรายการอาหารนี้');
+                              },
+                            );
+                          }
+                        }
                       },
                     ),
                   ],
@@ -456,7 +553,18 @@ class _FoodMenuPageState extends State<FoodMenuPage> {
                 child: setCategorySection(foodItems.itemsData),
               ),
               Expanded(
-                child: setItemBox(foodItems.itemsData),
+                child: filterItem.length == 0
+                    ? setItemBox(foodItems.itemsData)
+                    : GridView.count(
+                        shrinkWrap: true,
+                        // todo comment this out and check the result
+                        physics: ClampingScrollPhysics(),
+                        childAspectRatio: (1 / 1.3),
+                        primary: false,
+                        padding: const EdgeInsets.all(10.0),
+                        crossAxisSpacing: 10.0,
+                        crossAxisCount: 4,
+                        children: filterItem),
               ),
               SizedBox(
                 height: 40.0,
@@ -495,9 +603,15 @@ class CustomButton extends StatelessWidget {
 class ItemContainer extends StatelessWidget {
   final String label;
   final String code;
+  final String english_name;
   final Function addNewOrderItem;
   final int price;
-  ItemContainer({this.label, this.code, this.addNewOrderItem, this.price});
+  ItemContainer(
+      {this.label,
+      this.code,
+      this.addNewOrderItem,
+      this.price,
+      this.english_name});
 
   @override
   Widget build(BuildContext context) {
@@ -513,6 +627,7 @@ class ItemContainer extends StatelessWidget {
                   color: Colors.grey.shade900,
                   child: CreateFoodItemContent(
                     label: label,
+                    english_name: english_name,
                     code: code,
                     price: price,
                     addNewOrderItem: addNewOrderItem,
@@ -561,6 +676,7 @@ class ItemContainer extends StatelessWidget {
 
 class CreateFoodItemContent extends StatefulWidget {
   final String label;
+  final String english_name;
   final String code;
   final Function addNewOrderItem;
   final int price;
@@ -570,6 +686,7 @@ class CreateFoodItemContent extends StatefulWidget {
     this.code,
     this.addNewOrderItem,
     this.price,
+    this.english_name,
   }) : super(key: key);
 
   @override
@@ -658,6 +775,7 @@ class _CreateFoodItemContentState extends State<CreateFoodItemContent> {
             // TODO: Update item in list
             widget.addNewOrderItem({
               'name': widget.label,
+              'english_name': widget.english_name,
               'code': widget.code,
               'quantity': itemQuantity,
               'remark': remarkController.text,
@@ -860,12 +978,19 @@ class FoodCatButton extends StatelessWidget {
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 3.0, vertical: 3.0),
         decoration: BoxDecoration(
-          color: currentPage == page ? Colors.green : Colors.redAccent,
+          color: currentPage == page
+              ? Colors.green.shade900
+              : Colors.green.shade600,
           borderRadius: BorderRadius.circular(10.0),
         ),
         height: 40.0,
         width: 100,
-        child: Center(child: Text(label)),
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
       ),
     );
   }

@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:jep_restaurant_waiter_app/brains/login.dart';
 import 'package:jep_restaurant_waiter_app/brains/table.dart';
 import 'package:jep_restaurant_waiter_app/utilities/socket.dart';
@@ -10,6 +14,7 @@ import 'package:jep_restaurant_waiter_app/widgets/table_section.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
+import 'package:http/http.dart' as http;
 
 PageController pageController;
 int currentPage = 0;
@@ -110,13 +115,8 @@ class TablesPageState extends State<TablesPage> {
       return WillPopScope(
         onWillPop: () async => false,
         child: Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage('assets/images/background.jpg'),
-                fit: BoxFit.cover),
-          ),
           child: Scaffold(
-            backgroundColor: Color.fromRGBO(35, 255, 255, 0.6),
+            backgroundColor: Colors.lightBlue,
             body: SafeArea(
               child: Column(
                 children: <Widget>[

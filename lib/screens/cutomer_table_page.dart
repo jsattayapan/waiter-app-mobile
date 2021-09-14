@@ -39,6 +39,7 @@ class _OrderFoodPageState extends State<OrderFoodPage> {
       for (var item in items) {
         list.add(FoodItemLine(
           name: item['name'],
+          english_name: item['english_name'],
           quantity: item['quantity'],
           price: item['price'],
           status: item['status'],
@@ -125,23 +126,28 @@ class _OrderFoodPageState extends State<OrderFoodPage> {
                           : FlatButton(
                               color: primaryTextColor,
                               onPressed: () {
-                                Navigator.pushReplacementNamed(
-                                    context, '/tables');
-                                tableInfo.updateTableStatus(
-                                    tableInfo.tableNo, 'available', "");
-                                tableInfo.closeTable(tableInfo.id);
-                                tableInfo.reset();
+                                Future.delayed(Duration(seconds: 1), () {
+                                  Navigator.pushReplacementNamed(
+                                      context, '/tables');
+                                  tableInfo.updateTableStatus(
+                                      tableInfo.tableNo, 'available', "");
+                                  tableInfo.closeTable(tableInfo.id);
+                                  tableInfo.reset();
+                                });
                               },
                               child: Text('ปิดโต๊ะ'),
                             )
                       : FlatButton(
                           color: primaryTextColor,
                           onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/tables');
-                            tableInfo.updateTableStatus(
-                                tableInfo.tableNo, 'available', "");
-                            tableInfo.closeTable(tableInfo.id);
-                            tableInfo.reset();
+                            Future.delayed(Duration(seconds: 1), () {
+                              Navigator.pushReplacementNamed(
+                                  context, '/tables');
+                              tableInfo.updateTableStatus(
+                                  tableInfo.tableNo, 'available', "");
+                              tableInfo.closeTable(tableInfo.id);
+                              tableInfo.reset();
+                            });
                           },
                           child: Text('ปิดโต๊ะ'),
                         ),
@@ -170,25 +176,26 @@ class _OrderFoodPageState extends State<OrderFoodPage> {
                                 });
                               },
                             ),
-                      tableInfo.section != 'VIP' && tableInfo.section != 'ETC'
-                          ? RoundIconButton(
-                              icon: FontAwesomeIcons.exchangeAlt,
-                              color: Colors.yellow,
-                              onPressed: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return Dialog(
-                                        child: Container(
-                                            width: 200.0,
-                                            height: 450.0,
-                                            color: Colors.grey.shade900,
-                                            child: TransferOrderSection()),
-                                      );
-                                    });
-                              },
-                            )
-                          : SizedBox(),
+//                      tableInfo.section != 'VIP' && tableInfo.section != 'ETC'
+//                          ? RoundIconButton(
+//                              icon: FontAwesomeIcons.exchangeAlt,
+//                              color: Colors.yellow,
+//                              onPressed: () {
+//                                showDialog(
+//                                    context: context,
+//                                    builder: (BuildContext context) {
+//                                      return Dialog(
+//                                        child: Container(
+//                                            width: 200.0,
+//                                            height: 450.0,
+//                                            color: Colors.grey.shade900,
+//                                            child: TransferOrderSection()),
+//                                      );
+//                                    });
+//                              },
+//                            )
+//                          :
+                      SizedBox(),
                       tableInfo.section != 'VIP' && tableInfo.section != 'ETC'
                           ? RoundIconButton(
                               icon: FontAwesomeIcons.creditCard,
@@ -480,10 +487,12 @@ class LogLine extends StatelessWidget {
 class FoodItemLine extends StatelessWidget {
   final String name;
   final int quantity;
+  final String english_name;
   final int price;
   final String status;
 
-  FoodItemLine({this.name, this.quantity, this.price, this.status});
+  FoodItemLine(
+      {this.name, this.quantity, this.price, this.status, this.english_name});
 
   @override
   Widget build(BuildContext context) {
@@ -502,6 +511,7 @@ class FoodItemLine extends StatelessWidget {
                 color: Colors.red,
               );
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -517,6 +527,10 @@ class FoodItemLine extends StatelessWidget {
                 child: Text(
                     '${formatCurrency.format((price * quantity)).toString()}.-')),
           ],
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 35.0),
+          child: Text('$english_name'),
         ),
         SizedBox(
           height: 10.0,

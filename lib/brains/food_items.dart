@@ -22,6 +22,26 @@ class FoodItems with ChangeNotifier {
     }
   }
 
+  Future getOnlineItemsByNumber(number) async {
+    print('Online Food');
+    print(number);
+    var url =
+        '${serverIpAddress}api/restaurant/tables/item-orders/getOnlineItemsByNumber';
+    var response = await http.post(url,
+        headers: {'AUTHENTICATION': constants.token}, body: {'number': number});
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      var items = json.decode(response.body);
+      if (items.length == 0) {
+        return Future.value(List());
+      } else {
+        return Future.value(items);
+      }
+    } else {
+      return Future.value(List());
+    }
+  }
+
   sendNewOrderToServer(userInfo, tableInfo, newItems) async {
     var url = '${serverIpAddress}api/restaurant/tables/item-orders/add';
     var jsonItems = json.encode(newItems);
